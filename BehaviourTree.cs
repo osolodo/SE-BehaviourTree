@@ -19,14 +19,15 @@ namespace IngameScript
 {
     public class BehaviourTree
     {
-        public BehaviourTree()
+        private readonly RootNode rootNode;
+        public BehaviourTree(RootNode rootNode)
         {
-
+            this.rootNode = rootNode;
         }
 
         public BehaviourTreeReturnType TickRoot()
         {
-            return BehaviourTreeReturnType.RUNNING;
+            return rootNode.Tick();
         }
     }
 }

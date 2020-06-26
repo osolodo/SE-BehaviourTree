@@ -13,5 +13,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)BehaviourTreeFactory.CreateTree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BehaviourTreeFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BehaviourTreeReturnType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeNode.cs" />
   </ItemGroup>
 </Project>

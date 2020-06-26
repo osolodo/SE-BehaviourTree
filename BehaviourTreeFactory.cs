@@ -12,34 +12,41 @@ namespace IngameScript
                 return theObject;
             }
         */
-        Dictionary<string, Type> registeredNodes;
-        Dictionary<string, Func<BehaviourTreeReturnType>> registeredSimpleConditions;
-        Dictionary<string, Func<BehaviourTreeReturnType>> registeredSimpleActions;
-        HashSet<String> registeredNames;
+        Dictionary<string, Func<TreeNode>> registeredNodes;
+        Dictionary<string, Func<Dictionary<string, string>, BehaviourTreeReturnType>> registeredSimpleConditions;
+        Dictionary<string, Func<Dictionary<string, string>, BehaviourTreeReturnType>> registeredSimpleActions;
+        readonly HashSet<String> registeredNames;
 
         public BehaviourTreeFactory()
         {
-            registeredNodes = new Dictionary<string, Type>();
-            registeredSimpleConditions = new Dictionary<string, Func<BehaviourTreeReturnType>>();
-            registeredSimpleActions = new Dictionary<string, Func<BehaviourTreeReturnType>>();
+            registeredNodes = new Dictionary<string, Func<TreeNode>>();
+            registeredSimpleConditions = new Dictionary<string, Func<Dictionary<string, string>, BehaviourTreeReturnType>>();
+            registeredSimpleActions = new Dictionary<string, Func<Dictionary<string, string>, BehaviourTreeReturnType>>();
             registeredNames = new HashSet<string>();
 
-            //TODO: register default nodes
+            RegisterDefaultNodes();
         }
 
-        public void registerNodeType<T>(string name)
+        protected void RegisterDefaultNodes()
+        {
+            RegisterNodeType<RootNode>("root");
+            RegisterNodeType<BehaviorTreeNode>("BehaviorTree");
+            RegisterNodeType<SequenceNode>("Sequence");
+        }
+
+        public void RegisterNodeType<TreeNodeExtension>(string name) where TreeNodeExtension : TreeNode, new()
         {
             registeredNames.Add(name);
-            registeredNodes.Add(name, typeof(T));
+            registeredNodes.Add(name, () => { return new TreeNodeExtension(); });
         }
 
-        public void registerSimpleCondition(string name, Func<BehaviourTreeReturnType> function)
+        public void RegisterSimpleCondition(string name, Func<Dictionary<string, string>, BehaviourTreeReturnType> function)
         {
             registeredNames.Add(name);
             registeredSimpleConditions.Add(name, function);
         }
 
-        public void registerSimpleAction(string name, Func<BehaviourTreeReturnType> function)
+        public void RegisterSimpleAction(string name, Func<Dictionary<string, string>, BehaviourTreeReturnType> function)
         {
             registeredNames.Add(name);
             registeredSimpleActions.Add(name, function);
