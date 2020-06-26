@@ -31,7 +31,24 @@ namespace IngameScript
         {
             RegisterNodeType<RootNode>("root");
             RegisterNodeType<BehaviorTreeNode>("BehaviorTree");
+
+            //Control nodes
+            RegisterNodeType<FallbackNode>("Fallback");
+            RegisterNodeType<ReactiveFallbackNode>("ReactiveFallback");
             RegisterNodeType<SequenceNode>("Sequence");
+            RegisterNodeType<ReactiveSequenceNode>("ReactiveSequence");
+            RegisterNodeType<SequenceStarNode>("SequenceStar");
+            RegisterNodeType<ParallelNode>("Parallel");
+            RegisterNodeType<IfThenElseNode>("IfThenElse");
+            RegisterNodeType<WhileDoElseNode>("WhileDoElse");
+
+            //Decorator Nodes
+            RegisterNodeType<InverterNode>("Inverter");
+            RegisterNodeType<ForceSuccessNode>("ForceSuccess");
+            RegisterNodeType<ForceFailureNode>("ForceFailure");
+            RegisterNodeType<RepeatNode>("Repeat");
+            RegisterNodeType<RetryNode>("Retry");
+            RegisterNodeType<TimeoutNode>("Timeout");
         }
 
         public void RegisterNodeType<TreeNodeExtension>(string name) where TreeNodeExtension : TreeNode, new()

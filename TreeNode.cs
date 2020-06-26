@@ -9,8 +9,10 @@ namespace IngameScript
         protected string name;
         protected string ID;
         protected static readonly Logger logger = new Logger("BehaviourTree_TreeNode");
+        protected Dictionary<string, string> attributes;
         virtual public void Init(Dictionary<string, string> attributes)
         {
+            this.attributes = attributes;
             attributes.TryGetValue("name", out name);
             attributes.TryGetValue("ID", out ID);
             if(name == null)
@@ -56,15 +58,7 @@ namespace IngameScript
     }
 
     public abstract class LeafNode : TreeNode
-    {
-        protected Dictionary<string, string> attributes;
-
-        override public void Init(Dictionary<string, string> attributes)
-        {
-            this.attributes = attributes;
-            base.Init(attributes);
-        }
-    }
+    { }
 
     public class RootNode : ControlNode
     {
@@ -79,7 +73,6 @@ namespace IngameScript
             }
             if(!attributes.TryGetValue("main_tree_to_execute", out main_tree_to_execute))
             {
-                logger.Debug("meep");
                 if (children.Count == 1)
                 {
                     main_node = children[0];
@@ -88,7 +81,6 @@ namespace IngameScript
                     throw new Exception(logger.Error("root node does not contain attribute:main_tree_to_execute"));
                 }
             }
-            logger.Debug("meep2");
             main_node = children.Find(childNode => main_tree_to_execute == childNode.GetName());
         }
         override public void Validate()
@@ -117,40 +109,6 @@ namespace IngameScript
         override public BehaviourTreeReturnType Tick()
         {
             return child.Tick();
-        }
-    }
-
-    public class SequenceNode : ControlNode
-    {
-        private int index = 0;
-        override public BehaviourTreeReturnType Tick()
-        {
-            BehaviourTreeReturnType child_status;
-
-            while (index < children.Count)
-            {
-                child_status = children[index].Tick();
-
-                if (child_status == BehaviourTreeReturnType.SUCCESS)
-                {
-                    index++;
-                }
-                else if (child_status == BehaviourTreeReturnType.RUNNING)
-                {
-                    // keep same index
-                    return child_status;
-                }
-                else if (child_status == BehaviourTreeReturnType.FAILURE)
-                {
-                    //HaltAllChildren();
-                    index = 0;
-                    return child_status;
-                }
-            }
-            // all the children returned success. Return SUCCESS too.
-            //HaltAllChildren();
-            index = 0;
-            return BehaviourTreeReturnType.SUCCESS;
         }
     }
 
