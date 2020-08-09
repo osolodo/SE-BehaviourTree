@@ -9,10 +9,34 @@
     <Import_RootNamespace>IngameScript</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\AbstractNodes\TerminalNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\BehaviorTreeNode.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BehaviourTree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BehaviourTreeFactory.CreateTree.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BehaviourTreeFactory.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)BehaviourTreeReturnType.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)TreeNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\AbstractNodes\DecoratorNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\AbstractNodes\ControlNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\AbstractNodes\TreeNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\ControlNodes\IfThenElseNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\ControlNodes\ManualNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\ControlNodes\ParallelNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\ControlNodes\ReactiveSequenceNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\ControlNodes\SequenceNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\ControlNodes\SequenceStarNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\ControlNodes\WhileDoElseNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\ControlNodes\FallbackNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\ControlNodes\ReactiveFallbackNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\DecoratorNodes\ForceFailureNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\DecoratorNodes\ForceSuccessNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\DecoratorNodes\InverterNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\DecoratorNodes\RepeatNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\DecoratorNodes\RetryNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\DecoratorNodes\TimeoutNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\AbstractNodes\LeafNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\RootNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\LambdaNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\SubTreeNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DefaultNodes\TerminalNodes\LambdaTerminalNode.cs" />
   </ItemGroup>
 </Project>

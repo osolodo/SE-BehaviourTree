@@ -1,4 +1,7 @@
-﻿using System;
+﻿using IngameScript.DefaultNodes;
+using IngameScript.DefaultNodes.AbstractNodes;
+using Sandbox.ModAPI.Ingame;
+using System;
 using System.Collections.Generic;
 
 namespace IngameScript
@@ -9,29 +12,49 @@ namespace IngameScript
 
         private static readonly System.Text.RegularExpressions.Regex xmlName = new System.Text.RegularExpressions.Regex("(:|[A-Z]|_|[a-z])(:|[A-Z]|_|[a-z]|-|[0-9])*");
         private static readonly System.Text.RegularExpressions.Regex xmlAttributes = new System.Text.RegularExpressions.Regex("([a-zA-Z0-9_]+) *= *\"([a-zA-Z0-9_:{\\. }]+)\"");
-        public BehaviourTree CreateTree(string inputString)
+        public BehaviourTree CreateTree(string inputString,IMyGridTerminalSystem gridTerminalSystem)
         {
-            logger.Log("Creating Tree");
+            List<SubTreeNode> subTreeNodes = new List<SubTreeNode>();
+            List<TerminalNode> terminalNodes = new List<TerminalNode>();
 
+
+            logger.Log("Creating Tree");
             logger.IncLvl();
-            ParsingNode parsingNode = ParseNode(inputString);
+            ParsingNode parsingNode = ParseNode(inputString, subTreeNodes, terminalNodes);
             logger.DecLvl();
+
 
             logger.Log("Validating Tree");
             if (parsingNode.open)
             {
                 logger.Log("Top level node is not closed!");
             }
+
+
             TreeNode treeNode = parsingNode.treeNode;
             if (!(treeNode is RootNode))
             {
                 throw new Exception(logger.Error("Top level node must be a root node!"));
             }
+            RootNode rootNode = (RootNode)treeNode;
+            subTreeNodes.ForEach(subTreeNode =>
+            {
+                subTreeNode.SetRootNode(rootNode);
+            });
+
+
+            logger.Debug("gridTerminalSystem:" + ((gridTerminalSystem != null) ? "good" : "null"));
+            terminalNodes.ForEach(terminalNode =>
+            {
+                terminalNode.SetGridTerminalSystem(gridTerminalSystem);
+            });
+
+
             logger.IncLvl();
             treeNode.Validate();
             logger.DecLvl();
 
-            return new BehaviourTree((RootNode)treeNode);
+            return new BehaviourTree(rootNode);
         }
 
         private struct ParsingNode
@@ -49,7 +72,7 @@ namespace IngameScript
             }
         }
 
-        private ParsingNode ParseNode(string inputString)
+        private ParsingNode ParseNode(string inputString, List<SubTreeNode> subTreeNodes, List<TerminalNode> terminalNodes)
         {
             Dictionary<string, string> attributes = new Dictionary<string, string>();
 
@@ -86,6 +109,7 @@ namespace IngameScript
             //logger.Debug("Element:" + elementName.Value);
             Func<TreeNode> nodeConstructor;
             Func< Dictionary<string, string>,BehaviourTreeReturnType > simpleNode;
+            Func<TerminalNode> terminalNode;
             ParsingNode outputNode;
             TreeNode treeNode;
 
@@ -103,19 +127,23 @@ namespace IngameScript
 
             //create Node
             if (registeredNodes.TryGetValue(elementName.Value, out nodeConstructor))
-            {
+            { 
                 logger.Debug("Creating complex node: " + elementName.Value);
                 treeNode = nodeConstructor.Invoke();
+                if (treeNode is SubTreeNode)
+                {
+                    subTreeNodes.Add((SubTreeNode)treeNode);
+                }
             }
-            else if (registeredSimpleActions.TryGetValue(elementName.Value, out simpleNode))
+            else if (registeredLambdaNodes.TryGetValue(elementName.Value, out simpleNode))
             {
-                logger.Debug("Creating simple action: " + elementName.Value);
-                treeNode = new SimpleActionNode(simpleNode);
+                logger.Debug("Creating lambda node: " + elementName.Value);
+                treeNode = new LambdaNode(simpleNode);
             }
-            else if (registeredSimpleConditions.ContainsKey(elementName.Value))
+            else if (registeredTerminalNodes.TryGetValue(elementName.Value, out terminalNode))
             {
-                logger.Debug("Creating simple condition: " + elementName.Value);
-                treeNode = new SimpleConditionNode(simpleNode);
+                logger.Debug("Creating terminal node: " + elementName.Value);
+                treeNode = terminalNode.Invoke();
             }
             else
             {
@@ -163,7 +191,7 @@ namespace IngameScript
                 {
                     logger.Debug("Finding Children");
                     logger.IncLvl();
-                    ParsingNode parsingNode = ParseNode(inputString.Substring(currentIndex));
+                    ParsingNode parsingNode = ParseNode(inputString.Substring(currentIndex),subTreeNodes, terminalNodes);
                     logger.DecLvl();
                     childNodes.Add(parsingNode);
                     logger.Debug("endIndex of found child:" + parsingNode.endIndex);

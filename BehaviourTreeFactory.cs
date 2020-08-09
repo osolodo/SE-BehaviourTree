@@ -1,4 +1,10 @@
-﻿using System;
+﻿using IngameScript.DefaultNodes;
+using IngameScript.DefaultNodes.AbstractNodes;
+using IngameScript.DefaultNodes.ControlNodes;
+using IngameScript.DefaultNodes.DecoratorNodes;
+using IngameScript.DefaultNodes.TerminalNodes;
+using Sandbox.ModAPI.Ingame;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,15 +19,15 @@ namespace IngameScript
             }
         */
         Dictionary<string, Func<TreeNode>> registeredNodes;
-        Dictionary<string, Func<Dictionary<string, string>, BehaviourTreeReturnType>> registeredSimpleConditions;
-        Dictionary<string, Func<Dictionary<string, string>, BehaviourTreeReturnType>> registeredSimpleActions;
-        readonly HashSet<String> registeredNames;
+        Dictionary<string, Func<Dictionary<string, string>, BehaviourTreeReturnType>> registeredLambdaNodes;
+        Dictionary<string, Func<TerminalNode>> registeredTerminalNodes;
+        readonly HashSet<string> registeredNames;
 
         public BehaviourTreeFactory()
         {
             registeredNodes = new Dictionary<string, Func<TreeNode>>();
-            registeredSimpleConditions = new Dictionary<string, Func<Dictionary<string, string>, BehaviourTreeReturnType>>();
-            registeredSimpleActions = new Dictionary<string, Func<Dictionary<string, string>, BehaviourTreeReturnType>>();
+            registeredLambdaNodes = new Dictionary<string, Func<Dictionary<string, string>, BehaviourTreeReturnType>>();
+            registeredTerminalNodes = new Dictionary<string, Func<TerminalNode>>();
             registeredNames = new HashSet<string>();
 
             RegisterDefaultNodes();
@@ -31,6 +37,7 @@ namespace IngameScript
         {
             RegisterNodeType<RootNode>("root");
             RegisterNodeType<BehaviorTreeNode>("BehaviorTree");
+            RegisterNodeType<SubTreeNode>("SubTree");
 
             //Control nodes
             RegisterNodeType<FallbackNode>("Fallback");
@@ -54,19 +61,28 @@ namespace IngameScript
         public void RegisterNodeType<TreeNodeExtension>(string name) where TreeNodeExtension : TreeNode, new()
         {
             registeredNames.Add(name);
-            registeredNodes.Add(name, () => { return new TreeNodeExtension(); });
+            registeredNodes.Add(name, () => new TreeNodeExtension());
         }
 
-        public void RegisterSimpleCondition(string name, Func<Dictionary<string, string>, BehaviourTreeReturnType> function)
+        public void RegisterLambdaNodes(string name, Func<Dictionary<string, string>, BehaviourTreeReturnType> function)
         {
             registeredNames.Add(name);
-            registeredSimpleConditions.Add(name, function);
+            registeredLambdaNodes.Add(name, function);
         }
 
-        public void RegisterSimpleAction(string name, Func<Dictionary<string, string>, BehaviourTreeReturnType> function)
+        public void RegisterTerminalNode<TreeNodeExtension>(string name) where TreeNodeExtension : TerminalNode, new()
         {
             registeredNames.Add(name);
-            registeredSimpleActions.Add(name, function);
+            registeredTerminalNodes.Add(name, () => new TreeNodeExtension());
+        }
+
+        public void RegisterLambdaTerminalNode(string name, Func<List<IMyTerminalBlock>, Dictionary<string, string>, BehaviourTreeReturnType> function)
+        {
+            registeredNames.Add(name);
+            registeredTerminalNodes.Add(name, () =>
+            {
+                return new LambdaTerminalNode(function);
+            });
         }
 
         //TODO: Do I need to add registerSimpleAction overloads with input values for the function? Can I?
